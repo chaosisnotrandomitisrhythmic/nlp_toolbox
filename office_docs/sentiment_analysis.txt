@@ -1,0 +1,36 @@
+**Meeting Notes: Sentiment Analysis Project**
+
+**1\. Attendees:**
+
+-   List the names and roles of all attendees.
+
+**2\. Agenda:**
+
+-   Introduction
+-   Project Goals and Objectives
+-   Data and Model Details
+-   Implementation Plan
+-   Evaluation and Metrics
+-   Potential Challenges and Risks
+-   Timeline and Next Steps
+
+**3\. Key Points Discussed:**
+
+-   **Project Goals and Objectives:** Summarize the main goals and how the insights from sentiment analysis will be used.
+-   **Data and Model Details:** Note the type of data, any privacy concerns, and why the specific LLM was chosen.
+-   **Implementation Plan:** Outline the steps for implementation and any technical requirements.
+-   **Evaluation and Metrics:** Describe how success will be measured and the metrics that will be used.
+-   **Potential Challenges and Risks:** List any identified challenges and how they will be addressed.
+-   **Timeline and Next Steps:** Provide an estimated timeline and outline the next steps.
+
+**4\. Action Items:**
+
+-   List any action items assigned during the meeting, along with the responsible individuals and deadlines.
+
+**5\. Questions Raised:**
+
+-   Document any questions raised during the meeting and the responses provided.
+
+**6\. Additional Notes:**
+
+-   Include any other relevant information or observations made during the meeting.
