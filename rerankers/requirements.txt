@@ -1,0 +1,5 @@
+-r source_code/requirements.txt
+boto3
+sagemaker
+
+

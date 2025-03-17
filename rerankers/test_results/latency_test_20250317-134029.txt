@@ -1,0 +1,41 @@
+Serverless Configuration:
+Memory Size: 6144 MB
+Max Concurrency: 1
+
+Test Results:
+Documents: 10
+Mean: 0.336s
+Std: 0.042s
+Min: 0.306s
+Max: 0.365s
+-------------------
+Documents: 50
+Mean: 0.890s
+Std: 0.044s
+Min: 0.859s
+Max: 0.922s
+-------------------
+Documents: 100
+Mean: 1.408s
+Std: 0.109s
+Min: 1.331s
+Max: 1.485s
+-------------------
+Documents: 200
+Mean: 2.428s
+Std: 0.017s
+Min: 2.416s
+Max: 2.440s
+-------------------
+Documents: 500
+Mean: 5.942s
+Std: 0.230s
+Min: 5.779s
+Max: 6.104s
+-------------------
+Documents: 1000
+Mean: 12.144s
+Std: 0.570s
+Min: 11.741s
+Max: 12.547s
+-------------------
