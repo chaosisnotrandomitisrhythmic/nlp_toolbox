@@ -1,20 +1,16 @@
 from fastapi import FastAPI
+import asyncio
 
 
-app = FastAPI(debug=True)
+app = FastAPI()
 
 
 @app.get("/dummy-summary")
 async def get_dummy_summary():
+    await asyncio.sleep(2)
+
     html_content = """
     <html>
-        <head>
-            <title>Dummy Summary</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 40px; }
-                .summary { background-color: #f5f5f5; padding: 20px; border-radius: 5px; }
-            </style>
-        </head>
         <body>
             <h1>Dummy Summary Report</h1>
             <div class="summary">
