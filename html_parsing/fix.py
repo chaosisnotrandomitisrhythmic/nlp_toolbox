@@ -1,7 +1,20 @@
 from bs4 import BeautifulSoup
 
 
-def transform_html(html):
+def transform_html(html: str):
+    """
+    Transforms the given HTML string by modifying specific tags for simplified structure.
+
+    - Extracts and processes only the <body> content if available, otherwise falls back to the full HTML.
+    - Converts all heading tags (<h1> through <h6>) into <h2> tags for uniformity.
+    - Replaces all <ul> (unordered list) elements by converting each <li> item into a separate <p> tag.
+    - Removes the original <ul> tags after transformation.
+    Args:
+        html (str): The raw HTML string to be transformed.
+
+    Returns:
+        str: The transformed HTML as a string.
+    """
     soup = BeautifulSoup(html, "html.parser")
     content = soup.body or soup  # fallback to full HTML if <body> is missing
 
