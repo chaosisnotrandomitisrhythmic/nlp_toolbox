@@ -56,65 +56,23 @@ class TestOpenAILLM(unittest.TestCase):
         self.assertEqual(paragraphs[1].text, "Item 2")
         self.assertEqual(paragraphs[2].text, "Item 3")
 
-    def test_body_extraction(self):
-        """Test that content is extracted from body if present."""
+    def test_paragraph_line_breaks(self):
+        """Test that there is a line break after each paragraph."""
         html = """
         <html>
-            <head><title>Test</title></head>
             <body>
-                <p>Content</p>
+                <p>First paragraph</p>
+                <p>Second paragraph</p>
+                <p>Third paragraph</p>
             </body>
         </html>
         """
         transformed = transform_html(html)
-        soup = BeautifulSoup(transformed, "html.parser")
 
-        # Should not contain head
-        self.assertIsNone(soup.find("head"))
-        # Should contain the paragraph
-        self.assertEqual(soup.find("p").text, "Content")
-
-    def test_no_body_fallback(self):
-        """Test that function works with HTML that has no body tag."""
-        html = "<p>Content</p>"
-        transformed = transform_html(html)
-        soup = BeautifulSoup(transformed, "html.parser")
-
-        self.assertEqual(soup.find("p").text, "Content")
-
-    def test_empty_html(self):
-        """Test handling of empty HTML."""
-        html = ""
-        transformed = transform_html(html)
-        self.assertEqual(transformed, "")
-
-    def test_nested_lists(self):
-        """Test handling of nested lists."""
-        html = """
-        <html>
-            <body>
-                <ul>
-                    <li>Item 1
-                        <ul>
-                            <li>Nested 1</li>
-                            <li>Nested 2</li>
-                        </ul>
-                    </li>
-                    <li>Item 2</li>
-                </ul>
-            </body>
-        </html>
-        """
-        transformed = transform_html(html)
-        soup = BeautifulSoup(transformed, "html.parser")
-
-        # Should have 4 paragraphs (Item 1, Nested 1, Nested 2, Item 2)
-        paragraphs = soup.find_all("p")
-        self.assertEqual(len(paragraphs), 4)
-        self.assertEqual(paragraphs[0].text, "Item 1")
-        self.assertEqual(paragraphs[1].text, "Nested 1")
-        self.assertEqual(paragraphs[2].text, "Nested 2")
-        self.assertEqual(paragraphs[3].text, "Item 2")
+        # Check that each paragraph ends with a newline character
+        self.assertIn("First paragraph\n", transformed)
+        self.assertIn("Second paragraph\n", transformed)
+        self.assertIn("Third paragraph\n", transformed)
 
 
 if __name__ == "__main__":

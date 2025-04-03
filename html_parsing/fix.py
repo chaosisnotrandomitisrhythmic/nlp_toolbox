@@ -1,6 +1,11 @@
 from bs4 import BeautifulSoup
 
 
+def get_direct_text(element):
+    """Get only the direct text of an element, excluding text from nested elements."""
+    return "".join(c.strip() for c in element.children if isinstance(c, str))
+
+
 def transform_html(html: str):
     """
     Transforms the given HTML string by modifying specific tags for simplified structure.
@@ -16,22 +21,43 @@ def transform_html(html: str):
         str: The transformed HTML as a string.
     """
     soup = BeautifulSoup(html, "html.parser")
-    content = soup.body or soup  # fallback to full HTML if <body> is missing
+
+    content = soup.body or soup
 
     # Replace all heading tags (h1-h6) with h2
     for level in range(1, 7):
         for tag in content.find_all(f"h{level}"):
             tag.name = "h2"
 
-    # Replace all <ul> with multiple <p> tags (one per <li>)
+    # Replace all li tags with p tags
+    for li in content.find_all("li"):
+        li.name = "p"
+
+    # Remove all ul tags
     for ul in content.find_all("ul"):
-        new_tags = []
-        for li in ul.find_all("li"):
-            p_tag = soup.new_tag("p")
-            p_tag.string = li.get_text(strip=True)
-            new_tags.append(p_tag)
-        for new_tag in reversed(new_tags):
-            ul.insert_after(new_tag)
-        ul.decompose()  # Remove the original <ul>
+        ul.unwrap()
+
+    # Add line breaks after each paragraph to make sure nested lists get rendererd pretty
+    for p in content.find_all("p"):
+        p.append("\n")
 
     return str(content)
+
+
+html = """
+        <html>
+            <body>
+                <ul>
+                    <li>Item 1
+                        <ul>
+                            <li>Nested 1</li>
+                            <li>Nested 2</li>
+                        </ul>
+                    </li>
+                    <li>Item 2</li>
+                </ul>
+            </body>
+        </html>
+        """
+
+print(transform_html(html))
