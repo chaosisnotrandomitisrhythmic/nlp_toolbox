@@ -35,7 +35,8 @@ dt = db.create(Conversation, pk="id")
 
 conversations = {}
 
-app = FastHTML(before=bware)
+# app = FastHTML(before=bware) disable bware auth and query param saving for now
+app = FastHTML()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
