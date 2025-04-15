@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 import time
 import json
@@ -33,7 +33,8 @@ from utils.db import Conversation
 from utils.script import script
 from utils.svg import Path, Svg
 
-db = database("data/test_5.db")
+
+db = database("data/test.db")
 
 dt = db.create(Conversation, pk="id")
 
@@ -223,40 +224,41 @@ async def create_conversation(request):
         print("Received request body:", body)
 
         # Validate required fields
-        user_id = body.get('user_id')
-        interro_selection = body.get('interro_selection')
+        user_id = body.get("user_id")
+        interro_selection = body.get("interro_selection")
 
         if not user_id:
             raise HTTPException(status_code=400, detail="user_id is required")
         if not interro_selection:
             raise HTTPException(status_code=400, detail="interro_selection is required")
 
-        # Generate a unique conversation ID using timestamp and random suffix
-        conversation_id = f"{int(time.time())}_{uuid.uuid4().hex[:8]}"
-
         try:
             # Create a new conversation record
-            conversation = dt.insert(Conversation(
-                id=conversation_id,
-                user_id="123",
-                created_at="123",
-                messages=[],
-                interro_selection={}
-            ))
+            conversation = dt.insert(
+                Conversation(
+                    user_id=user_id,
+                    interro_selection=json.dumps(interro_selection),
+                    created_at=datetime.now(timezone.utc).isoformat(),
+                )
+            )
 
             # Add debug logging
             print("Created conversation:", conversation)
 
             # Make sure we're returning a proper JSON response
-            return {"id": conversation_id, "message": "Conversation initialized"}
+            return {"id": conversation.id, "message": "Conversation initialized"}
 
         except Exception as db_error:
             print("Database error:", str(db_error))
-            raise HTTPException(status_code=500, detail=f"Database error: {str(db_error)}")
+            raise HTTPException(
+                status_code=500, detail=f"Database error: {str(db_error)}"
+            )
 
     except ValueError as ve:
         print("Value error:", str(ve))
         raise HTTPException(status_code=400, detail=f"Invalid JSON body: {str(ve)}")
     except Exception as e:
         print("Unexpected error:", str(e))
-        raise HTTPException(status_code=500, detail=f"Failed to create conversation: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to create conversation: {str(e)}"
+        )

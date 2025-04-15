@@ -1,6 +1,10 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class Conversation:
     id: int
-    messages: list
+    messages: str
     created_at: str
-    interro_selection: dict
+    interro_selection: str
     user_id: str
