@@ -41,7 +41,7 @@ app = FastHTML()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-client = AsyncOpenAI()
+openai_client = AsyncOpenAI()
 
 
 static_dir = os.path.join(os.path.dirname(__file__), "static")
@@ -153,7 +153,7 @@ async def stream_response(request: Request, message: str, session_id: str = None
 
     async def event_generator():
         try:
-            response = await client.chat.completions.create(
+            response = await openai_client.chat.completions.create(
                 model="gpt-4o-mini", messages=conversations[session_id], stream=True
             )
 
