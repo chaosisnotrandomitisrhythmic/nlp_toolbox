@@ -1,8 +1,6 @@
-from typing import List
-
-
 class Conversation:
     id: int
-    messages: List[dict]
+    messages: list
     created_at: str
     interro_selection: dict
+    user_id: str

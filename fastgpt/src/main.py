@@ -1,6 +1,10 @@
 import os
+from datetime import datetime
+import uuid
+import time
+import json
 
-from fastapi import HTTPException, Request
+from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
 from fasthtml.common import (
     A,
@@ -29,14 +33,14 @@ from utils.db import Conversation
 from utils.script import script
 from utils.svg import Path, Svg
 
-db = database("data/test.db")
+db = database("data/test_5.db")
 
 dt = db.create(Conversation, pk="id")
 
 conversations = {}
 
 # app = FastHTML(before=bware) disable bware auth and query param saving for now
-app = FastHTML()
+app = FastHTML(debug=True)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -133,7 +137,7 @@ def home(session):
 
 
 @app.get("/stream")
-async def stream_response(request: Request, message: str, session_id: str = None):
+async def stream_response(request, message: str, session_id: str = None):
     """Stream responses for the given user input."""
     if not message:
         raise HTTPException(status_code=400, detail="Message parameter is required")
@@ -206,3 +210,53 @@ def auth_redirect(code: str, request, session):
     user_id = user_info[auth_client.id_key]  # get their ID
     session["user_id"] = user_id  # save ID in the session
     return RedirectResponse("/", status_code=303)
+
+
+@app.post("/conversation")
+async def create_conversation(request):
+    """Initialize a new conversation in the database."""
+    try:
+        # Get request body as JSON
+        body = await request.json()
+
+        # Add debug logging
+        print("Received request body:", body)
+
+        # Validate required fields
+        user_id = body.get('user_id')
+        interro_selection = body.get('interro_selection')
+
+        if not user_id:
+            raise HTTPException(status_code=400, detail="user_id is required")
+        if not interro_selection:
+            raise HTTPException(status_code=400, detail="interro_selection is required")
+
+        # Generate a unique conversation ID using timestamp and random suffix
+        conversation_id = f"{int(time.time())}_{uuid.uuid4().hex[:8]}"
+
+        try:
+            # Create a new conversation record
+            conversation = dt.insert(Conversation(
+                id=conversation_id,
+                user_id="123",
+                created_at="123",
+                messages=[],
+                interro_selection={}
+            ))
+
+            # Add debug logging
+            print("Created conversation:", conversation)
+
+            # Make sure we're returning a proper JSON response
+            return {"id": conversation_id, "message": "Conversation initialized"}
+
+        except Exception as db_error:
+            print("Database error:", str(db_error))
+            raise HTTPException(status_code=500, detail=f"Database error: {str(db_error)}")
+
+    except ValueError as ve:
+        print("Value error:", str(ve))
+        raise HTTPException(status_code=400, detail=f"Invalid JSON body: {str(ve)}")
+    except Exception as e:
+        print("Unexpected error:", str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to create conversation: {str(e)}")
