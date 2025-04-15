@@ -1,0 +1,48 @@
+{
+    "family": "fastgpt",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "256",
+    "memory": "512",
+    "runtimePlatform": {
+        "cpuArchitecture": "ARM64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "executionRoleArn": "arn:aws:iam::462019928087:role/ecsTaskExecutionRole",
+    "containerDefinitions": [
+        {
+            "name": "fastgpt",
+            "image": "462019928087.dkr.ecr.us-east-1.amazonaws.com/fastgpt:latest",
+            "portMappings": [
+                {
+                    "containerPort": 7860,
+                    "protocol": "tcp"
+                }
+            ],
+            "environment": [
+                {
+                    "name": "PYTHONUNBUFFERED",
+                    "value": "1"
+                },
+                {
+                    "name": "PORT",
+                    "value": "7860"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "OPENAI_API_KEY",
+                    "valueFrom": "/fastgpt/openai-api-key"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/fastgpt",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ]
+} 

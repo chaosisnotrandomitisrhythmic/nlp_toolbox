@@ -1,0 +1,1 @@
+http://localhost:5001/?interro_selection=%7B%22business_unit%22%3A%20%22Pharma%22%2C%20%22therapeutic_area%22%3A%20%22Oncology%22%2C%20%22disease_indication%22%3A%20%22Cancer%22%7D

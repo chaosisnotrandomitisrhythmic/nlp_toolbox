@@ -1,0 +1,6 @@
+.sesskey
+__pycache__/
+.venv/
+.env
+examples/
+data/

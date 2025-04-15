@@ -30,3 +30,9 @@ boto3 = "^1.37.23"
 opensearch-py = "^2.8.0"
 fastapi = "^0.115.12"
 
+
+[tool.poetry.group.client.dependencies]
+fh-chat = "^0.3.1"
+anthropic = "^0.49.0"
+openai = "^1.12.0"
+
