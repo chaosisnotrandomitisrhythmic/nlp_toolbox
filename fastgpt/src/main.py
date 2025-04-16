@@ -35,12 +35,12 @@ dark_icon = os.path.join(static_dir, "favicon-dark.ico")
 
 
 @app.get("/")
-def home(session):
+def home(session, conversation_id: int):
     """Render homepage with FastGPT UI."""
 
     home_text = f"""
 ## InterroGPT - A ChatGPT Implementation Using FastHTML
-{session.get("interro_selection", {})}
+{dt[conversation_id].interro_selection}
     """
 
     return page(home_text)

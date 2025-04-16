@@ -1,6 +1,7 @@
 script = """
-// Generate a new session ID on every page load
-let sessionId = Math.random().toString(36).substring(2);
+// Generate a new session ID from the URL query parameter
+const urlParams = new URLSearchParams(window.location.search);
+let sessionId = urlParams.get('conversation_id') 
 
 // Handle page load
 window.onload = function() {
