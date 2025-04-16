@@ -57,7 +57,7 @@ async def stream_response(request, message: str, session_id: str = None):
 
     if dt[session_id].messages is None:
 
-        messages = update_messages(
+        update_messages(
             conversation_id=session_id,
             message={
                 "role": "system",
@@ -67,7 +67,7 @@ async def stream_response(request, message: str, session_id: str = None):
         )
         print("System message added to conversation", dt[session_id])
 
-    messages = update_messages(
+    update_messages(
         conversation_id=session_id,
         message={"role": "user", "content": message},
         dt=dt,
@@ -94,7 +94,7 @@ async def stream_response(request, message: str, session_id: str = None):
                     assistant_response += content
                     yield {"data": content}
 
-            messages = update_messages(
+            update_messages(
                 conversation_id=session_id,
                 message={"role": "assistant", "content": assistant_response},
                 dt=dt,
