@@ -18,8 +18,6 @@ db = database("data/test.db")
 
 dt = db.create(Conversation, pk="id")
 
-conversations = {}
-
 # app = FastHTML(before=bware) disable bware auth and query param saving for now
 app = FastHTML(debug=True)
 
@@ -112,12 +110,12 @@ async def stream_response(request, message: str, session_id: str = None):
     return EventSourceResponse(event_generator())
 
 
-@app.get("/reset")
-def reset_conversation(session_id: str):
-    """Reset the conversation for the specified session ID."""
-    if session_id in conversations:
-        del conversations[session_id]
-    return {"message": "Conversation reset."}
+# @app.get("/reset")
+# def reset_conversation(session_id: str):
+#     """Reset the conversation for the specified session ID."""
+#     if session_id in conversations:
+#         del conversations[session_id]
+#     return {"message": "Conversation reset."}
 
 
 # User asks us to Login
