@@ -38,6 +38,9 @@ dark_icon = os.path.join(static_dir, "favicon-dark.ico")
 def home(session, conversation_id: int):
     """Render homepage with FastGPT UI."""
 
+    # reset conversation state for now every time we load the page
+    dt.update(id=conversation_id, messages=None)
+
     home_text = f"""
 ## InterroGPT - A ChatGPT Implementation Using FastHTML
 {dt[conversation_id]}
