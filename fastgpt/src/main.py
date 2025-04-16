@@ -1,15 +1,10 @@
+import json
 import os
 from datetime import datetime, timezone
-import json
 
 from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
-from fasthtml.common import (
-    FastHTML,
-    A,
-    P,
-    RedirectResponse,
-)
+from fasthtml.common import A, FastHTML, P, RedirectResponse
 from fasthtml.oauth import redir_url
 from fastlite import database
 from openai import AsyncOpenAI
@@ -18,7 +13,6 @@ from sse_starlette.sse import EventSourceResponse
 from components.chat import page
 from utils.auth import AUTH_CALLBACK_PATH, auth_client, bware
 from utils.db import Conversation
-
 
 db = database("data/test.db")
 

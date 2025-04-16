@@ -1,6 +1,6 @@
 import json
-import urllib.parse
 import os
+import urllib.parse
 
 from fasthtml.common import Beforeware, RedirectResponse
 from fasthtml.oauth import HuggingFaceClient

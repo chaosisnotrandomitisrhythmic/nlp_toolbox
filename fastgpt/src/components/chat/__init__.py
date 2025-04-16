@@ -1,20 +1,8 @@
-from fasthtml.common import (
-    Body,
-    Div,
-    Favicon,
-    Head,
-    Html,
-    P,
-    Script,
-    Style,
-    Textarea,
-    Title,
-    ft_hx,
-    Button,
-)
+from fasthtml.common import (Body, Button, Div, Favicon, Head, Html, P, Script,
+                             Style, Textarea, Title, ft_hx)
 
-from .styles import styles
 from .script import script
+from .styles import styles
 
 
 def Svg(*c, viewBox=None, **kwargs):
