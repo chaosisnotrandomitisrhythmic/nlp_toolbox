@@ -8,11 +8,12 @@ from fasthtml.common import A, FastHTML, P, RedirectResponse
 from fasthtml.oauth import redir_url
 from fastlite import database
 from openai import AsyncOpenAI
-from sse_starlette.sse import EventSourceResponse
+
 
 from components.chat import page
 from utils.auth import AUTH_CALLBACK_PATH, auth_client, bware
-from utils.db import Conversation, update_messages
+from utils.db import Conversation
+from utils.streaming import generate_stream_response
 
 db = database("data/test.db")
 
@@ -55,59 +56,13 @@ async def stream_response(request, message: str, session_id: str = None):
     if not session_id:
         raise HTTPException(status_code=400, detail="Session ID is required")
 
-    if dt[session_id].messages is None:
-
-        update_messages(
-            conversation_id=session_id,
-            message={
-                "role": "system",
-                "content": "You are a helpful assistant. Use Markdown for formatting.",
-            },
-            dt=dt,
-        )
-        print("System message added to conversation", dt[session_id])
-
-    update_messages(
-        conversation_id=session_id,
-        message={"role": "user", "content": message},
+    return await generate_stream_response(
+        request=request,
+        message=message,
+        session_id=session_id,
         dt=dt,
+        openai_client=openai_client,
     )
-    print("User message added to conversation", dt[session_id])
-
-    async def event_generator():
-        try:
-            response = await openai_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=json.loads(dt[session_id].messages),
-                stream=True,
-            )
-
-            assistant_response = ""
-
-            async for chunk in response:
-                if await request.is_disconnected():
-                    print(f"Client for session {session_id} disconnected")
-                    break
-
-                content = chunk.choices[0].delta.content
-                if content:
-                    assistant_response += content
-                    yield {"data": content}
-
-            update_messages(
-                conversation_id=session_id,
-                message={"role": "assistant", "content": assistant_response},
-                dt=dt,
-            )
-            print("Assistant message added to conversation", dt[session_id])
-
-        except Exception as e:
-            yield {"data": f"Error: {str(e)}"}
-
-        finally:
-            print(f"Streaming finished for session {session_id}")
-
-    return EventSourceResponse(event_generator())
 
 
 # @app.get("/reset")
