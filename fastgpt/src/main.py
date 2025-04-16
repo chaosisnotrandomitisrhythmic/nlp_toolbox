@@ -12,7 +12,7 @@ from sse_starlette.sse import EventSourceResponse
 
 from components.chat import page
 from utils.auth import AUTH_CALLBACK_PATH, auth_client, bware
-from utils.db import Conversation
+from utils.db import Conversation, update_messages
 
 db = database("data/test.db")
 
@@ -40,7 +40,7 @@ def home(session, conversation_id: int):
 
     home_text = f"""
 ## InterroGPT - A ChatGPT Implementation Using FastHTML
-{dt[conversation_id].interro_selection}
+{dt[conversation_id]}
     """
 
     return page(home_text)
@@ -54,21 +54,31 @@ async def stream_response(request, message: str, session_id: str = None):
     if not session_id:
         raise HTTPException(status_code=400, detail="Session ID is required")
 
-    if session_id not in conversations:
-        messages = [
-            {
+    if dt[session_id].messages is None:
+
+        messages = update_messages(
+            conversation_id=session_id,
+            message={
                 "role": "system",
                 "content": "You are a helpful assistant. Use Markdown for formatting.",
-            }
-        ]
-        conversations[session_id] = messages
+            },
+            dt=dt,
+        )
+        print("System message added to conversation", dt[session_id])
 
-    conversations[session_id].append({"role": "user", "content": message})
+    messages = update_messages(
+        conversation_id=session_id,
+        message={"role": "user", "content": message},
+        dt=dt,
+    )
+    print("User message added to conversation", dt[session_id])
 
     async def event_generator():
         try:
             response = await openai_client.chat.completions.create(
-                model="gpt-4o-mini", messages=conversations[session_id], stream=True
+                model="gpt-4o-mini",
+                messages=json.loads(dt[session_id].messages),
+                stream=True,
             )
 
             assistant_response = ""
@@ -83,9 +93,12 @@ async def stream_response(request, message: str, session_id: str = None):
                     assistant_response += content
                     yield {"data": content}
 
-            conversations[session_id].append(
-                {"role": "assistant", "content": assistant_response}
+            messages = update_messages(
+                conversation_id=session_id,
+                message={"role": "assistant", "content": assistant_response},
+                dt=dt,
             )
+            print("Assistant message added to conversation", dt[session_id])
 
         except Exception as e:
             yield {"data": f"Error: {str(e)}"}
