@@ -50,7 +50,12 @@ def home(session, conversation_id: int):
 
 @app.get("/stream")
 async def stream_response(request, message: str, session_id: str = None):
-    """Stream responses for the given user input."""
+    """Stream responses for the given user input.
+
+    This endpoint is called from the frontend JavaScript in ./components/chat/script.py when a user sends a message.
+    The frontend uses EventSource to establish a Server-Sent Events (SSE) connection and streams
+    the AI's response in real-time. The session_id is used to maintain conversation context.
+    """
     if not message:
         raise HTTPException(status_code=400, detail="Message parameter is required")
     if not session_id:
