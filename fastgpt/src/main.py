@@ -19,8 +19,8 @@ db = database("data/test.db")
 
 dt = db.create(Conversation, pk="id")
 
-# app = FastHTML(before=bware) disable bware auth and query param saving for now
-app = FastHTML(debug=True)
+app = FastHTML(before=bware)
+# app = FastHTML(debug=True)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -46,6 +46,27 @@ def home(session, conversation_id: int):
     """
 
     return page(home_text)
+
+
+# User asks us to Login
+@app.get("/login")
+def login(request, conversation_id: int):
+    redir = redir_url(request, AUTH_CALLBACK_PATH)
+    # Pass conversation_id as state to preserve it through OAuth flow
+    login_link = auth_client.login_link(redir, state=str(conversation_id))
+    print(f"Login link: {login_link}")
+    return P(A("Login with Github", href=login_link))
+
+
+# User comes back to us with an auth code from Hugging Face
+@app.get(AUTH_CALLBACK_PATH)
+def auth_redirect(code: str, state: str, request, session):
+    redir = redir_url(request, AUTH_CALLBACK_PATH)
+    user_info = auth_client.retr_info(code, redir)
+    user_id = user_info[auth_client.id_key]  # get their ID
+    session["user_id"] = user_id  # save ID in the session
+    # Redirect to home with the conversation ID from state
+    return RedirectResponse(f"/?conversation_id={state}", status_code=303)
 
 
 @app.get("/stream")
@@ -76,24 +97,6 @@ async def stream_response(request, message: str, session_id: str = None):
 #     if session_id in conversations:
 #         del conversations[session_id]
 #     return {"message": "Conversation reset."}
-
-
-# User asks us to Login
-@app.get("/login")
-def login(request):
-    redir = redir_url(request, AUTH_CALLBACK_PATH)
-    login_link = auth_client.login_link(redir)
-    return P(A("Login with Hugging Face", href=login_link))
-
-
-# User comes back to us with an auth code from Hugging Face
-@app.get(AUTH_CALLBACK_PATH)
-def auth_redirect(code: str, request, session):
-    redir = redir_url(request, AUTH_CALLBACK_PATH)
-    user_info = auth_client.retr_info(code, redir)
-    user_id = user_info[auth_client.id_key]  # get their ID
-    session["user_id"] = user_id  # save ID in the session
-    return RedirectResponse("/", status_code=303)
 
 
 @app.post("/conversation")
