@@ -4,14 +4,12 @@ from datetime import datetime, timezone
 
 from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
-from fasthtml.common import A, FastHTML, P, RedirectResponse
-from fasthtml.oauth import redir_url
+from fasthtml.common import Button, FastHTML, Form, Input, RedirectResponse, Titled
 from fastlite import database
 from openai import AsyncOpenAI
 
-
+from auth import auth_bware, auth_user, update_session
 from components.chat import page
-from utils.auth import AUTH_CALLBACK_PATH, auth_client, bware
 from utils.db import Conversation
 from utils.streaming import generate_stream_response
 
@@ -19,7 +17,7 @@ db = database("data/test.db")
 
 dt = db.create(Conversation, pk="id")
 
-app = FastHTML(before=bware)
+app = FastHTML(before=auth_bware)
 # app = FastHTML(debug=True)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -34,7 +32,7 @@ dark_icon = os.path.join(static_dir, "favicon-dark.ico")
 
 
 @app.get("/")
-def home(session, conversation_id: int):
+def home(conversation_id: int):
     """Render homepage with FastGPT UI."""
 
     # reset conversation state for now every time we load the page
@@ -48,25 +46,35 @@ def home(session, conversation_id: int):
     return page(home_text)
 
 
-# User asks us to Login
 @app.get("/login")
 def login(request, conversation_id: int):
-    redir = redir_url(request, AUTH_CALLBACK_PATH)
-    # Pass conversation_id as state to preserve it through OAuth flow
-    login_link = auth_client.login_link(redir, state=str(conversation_id))
-    print(f"Login link: {login_link}")
-    return P(A("Login with Github", href=login_link))
+    # Create a login form with token input and preserve conversation_id
+    form = Form(
+        Input(id="token", name="token", placeholder="Enter your token"),
+        Input(type="hidden", name="conversation_id", value=str(conversation_id)),
+        Button("Login", type="submit"),
+        method="post",
+        action="/login",
+    )
+    return Titled("Login", form)
 
 
-# User comes back to us with an auth code from Hugging Face
-@app.get(AUTH_CALLBACK_PATH)
-def auth_redirect(code: str, state: str, request, session):
-    redir = redir_url(request, AUTH_CALLBACK_PATH)
-    user_info = auth_client.retr_info(code, redir)
-    user_id = user_info[auth_client.id_key]  # get their ID
-    session["user_id"] = user_id  # save ID in the session
-    # Redirect to home with the conversation ID from state
-    return RedirectResponse(f"/?conversation_id={state}", status_code=303)
+@app.post("/login")
+async def login_post(request, session):
+    form = await request.form()
+    token = form.get("token")
+    conversation_id = form.get("conversation_id")
+
+    # Try to authenticate with the token
+    auth_result = auth_user(token)
+    if auth_result:
+        update_session(session, auth_result)
+        return RedirectResponse(f"/?conversation_id={conversation_id}", status_code=303)
+    else:
+        # If authentication fails, redirect back to login with conversation_id
+        return RedirectResponse(
+            f"/login?conversation_id={conversation_id}", status_code=303
+        )
 
 
 @app.get("/stream")
