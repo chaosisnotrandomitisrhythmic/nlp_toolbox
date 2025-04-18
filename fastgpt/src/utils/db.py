@@ -1,6 +1,7 @@
-from dataclasses import dataclass
-from apswutils.db import Table
 import json
+from dataclasses import dataclass
+
+from apswutils.db import Table
 
 
 @dataclass

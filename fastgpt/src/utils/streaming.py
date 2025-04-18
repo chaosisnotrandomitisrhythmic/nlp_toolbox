@@ -1,9 +1,11 @@
 import json
-from fastapi import HTTPException
-from sse_starlette.sse import EventSourceResponse
-from openai import AsyncOpenAI
-from .db import update_messages
+
 from apswutils.db import Table
+from fastapi import HTTPException
+from openai import AsyncOpenAI
+from sse_starlette.sse import EventSourceResponse
+
+from .db import update_messages
 
 
 async def generate_stream_response(
