@@ -19,7 +19,7 @@ async def generate_stream_response(
     """Generate a streaming response for the given user input.
 
     Args:
-        request: The FastAPI request object
+        request: The FastHTML (Starlette) request object
         message: The user's message
         session_id: The session ID
         dt: The database table
